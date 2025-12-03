@@ -18,10 +18,7 @@ def chebyshev_nodes(n: int = 10) -> np.ndarray | None:
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
     chebvec = []
-    # np.cos(np.arange(n)*np.pi/(n-1))
-    for k in range(n):
-        chebvec.append(np.cos(k*np.pi/(n-1)))
-    return np.array(chebvec)
+    return np.cos(np.arange(n)*np.pi/(n-1))
 
 
 def bar_cheb_weights(n: int = 10) -> np.ndarray | None:
@@ -34,13 +31,15 @@ def bar_cheb_weights(n: int = 10) -> np.ndarray | None:
         (np.ndarray): Wektor wag dla węzłów Czebyszewa (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
+    if not isinstance(n, int):
+        return None
     weightvec = []
-    for j in range(n-1):
+    for j in range(n):
         if j == 0 or j == n-1:
             delta = 0.5
         else:
             delta = 1
-        weightvec.append((-1)**j*delta)
+        weightvec.append(delta*(-1)**j)
     return np.array(weightvec)
 
 
@@ -62,9 +61,14 @@ def barycentric_inte(
         (np.ndarray): Wektor wartości funkcji interpolującej (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    L = []
-    for a in x:
-        L.append(np.sum(yi*wi/(a-xi))/np.sum(wi/(a-xi)))
+    L = np.zeros(len(x))
+    for i,a in enumerate(x):
+        roznica = a - xi
+        boolroznica = np.isclose(roznica, 0.0, atol=np.finfo(np.float64).eps)
+        if np.any(boolroznica):
+            L[i] = yi[boolroznica][0]
+        else:
+            L[i] =  np.sum(yi*wi/(roznica))/np.sum(wi/(roznica))
     return L
 
 def L_inf(
@@ -83,5 +87,13 @@ def L_inf(
         (float): Wartość normy L-nieskończoność.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
+    if not isinstance(xr, int) and isinstance(xr, float) and  isinstance(xr, np.ndarray) and  isinstance(xr, list):
+        return None
+    if not isinstance(x, int) and  isinstance(x, float) and  isinstance(x, np.ndarray) and isinstance(x, list):
+        return None
+    if isinstance(xr, list):
+        xr = np.array(xr)
+    
+
     return np.max(np.abs(xr-x))
     
