@@ -17,7 +17,6 @@ def chebyshev_nodes(n: int = 10) -> np.ndarray | None:
         (np.ndarray): Wektor węzłów Czebyszewa (n,).
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    chebvec = []
     return np.cos(np.arange(n)*np.pi/(n-1))
 
 
@@ -64,13 +63,14 @@ def barycentric_inte(
     L = np.zeros(len(x))
     for i,a in enumerate(x):
         roznica = a - xi
-        boolroznica = np.isclose(roznica, 0.0, atol=np.finfo(np.float64).eps)
+        boolroznica = np.abs(roznica) < 1e-14
         if np.any(boolroznica):
             L[i] = yi[boolroznica][0]
+            continue
         else:
-            L[i] =  np.sum(yi*wi/(roznica))/np.sum(wi/(roznica))
+            L[i] =  np.sum((yi*wi)/(roznica))/np.sum(wi/(roznica))
     return L
-
+    
 def L_inf(
     xr: int | float | list | np.ndarray, x: int | float | list | np.ndarray
 ) -> float | None:
